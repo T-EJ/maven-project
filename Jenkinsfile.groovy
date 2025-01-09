@@ -2,25 +2,21 @@ pipeline {
     agent any
     tools {
         maven 'maven3'
-        jdk 'java17'
+        jdk 'JDK-17'
     }
     stages {
-        stage('Download from Git') {
+        stage('Copy-artifact from Build-java-pipline ') {
             steps {
-                git 'https://github.com/T-EJ/maven-project.git'
+               copyArtifacts filter: '**/*.war', fingerprintArtifacts: true, projectName: 'Build-java-pipeline', selector: lastSuccessful()
             }
         }
-        stage('Build Java Project') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: '**/*.war', followSymlinks: false
-            }
-        }
-    }
-}
+    
 
+        stage('Deploy') {
+            steps {
+               copyArtifacts filter: '**/*.war', fingerprintArtifacts: true, projectName: 'Build-java-pipeline', selector: lastSuccessful()
+            }
+        }
+   }
+}
 
